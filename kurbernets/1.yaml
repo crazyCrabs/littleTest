@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ltj-test
+  labels:
+    run: bigjupyteruserservice
+spec:
+  containers:
+    - name: client
+      image: dockerhub.bigquant.ai:5000/bigquant/bigjupyteruserbox:master_bb32111_201230191151
+      ports:
+        - name: notebook-port
+          containerPort: 8888
+          protocol: TCP
+        - name: tb-port
+          containerPort: 6006
+          protocol: TCP

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bigalphaservice
+  namespace: bigquant
+  labels:
+    app: bigalphaservice
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  template:
+    metadata:
+      namespace: bigquant
+      labels:
+        app: bigalphaservice
+    spec:
+      containers:
+        - name: bigalphaservice
+          image: dockerhub.bigquant.ai:5000/bigquant/bigservice:master_c650127_210128183942
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: AI_CLOUD_USER_PW
+            value: 'bigquant:bjhlV7ugez61w9xb'
+          - name: SCHEDULE_USER_PW
+            value: 'bigquant_user:nzc6C5ILLkVgxHj0'
+          - name: MONGODB_CONF
+            value: mongodb://qnt:oAMjmOvnSFbYqcFxIl2EFvSk6rW4iy@mongodb-server:27017/?authSource=admin&authMechanism=SCRAM-SHA-256
+          - name: bigquant
+            value: online
+          - name: ENVIRONMENT
+            value: prod_aliyun
+          - name: SITE
+            value: bigquant
+          command: ["/bin/bash"]
+          args: ["-c", "python3 /var/app/enabled/bigservice/bigalphaservice/service.py"]
+          ports:
+            - containerPort: 37114
+          volumeMounts:
+            - mountPath: /var/app/data/bigquant/datasource
+              name: datasource
+      volumes:
+        - hostPath:
+            path: /var/app/data/bigquant/datasource
+            type: ''
+          name: datasource
+      nodeSelector:
+        bigalphaservice: "true"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bigalphaservice
+  namespace: bigquant
+spec:
+  selector:
+    app: bigalphaservice
+  ports:
+  - protocol: TCP
+    port: 37114
+    targetPort: 37114
+
+
+        

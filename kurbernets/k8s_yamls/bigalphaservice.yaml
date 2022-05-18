@@ -1,0 +1,66 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: bigalphaservice
+  namespace: bigquant
+  labels:
+    app: bigalphaservice
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  template:
+    metadata:
+      namespace: bigquant
+      labels:
+        app: bigalphaservice
+    spec:
+      containers:
+      - name: bigalphaservice
+        image: dockerhub.bigquant.ai:5000/bigquant/bigservice:master_latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: AI_CLOUD_USER_PW
+          value: '{{ postgres.user }}:{{ postgres.password }}'
+        - name: SCHEDULE_USER_PW
+          value: '{{ postgres.papertrading_schedule_user }}:{{ postgres.papertrading_schedule_password }}'
+        - name: AMQP_CONF
+          value: '{{ rabbitmq.conf }}'
+        {{ render_envs(bigalphaservice.envs)|indent(8) }}
+        command: ["/bin/bash"]
+        args: ["-c", "python3 /var/app/enabled/bigservice/bigalphaservice/service.py"]
+        ports:
+          - name: http
+            containerPort: 80
+          - name: https
+            containerPort: 443
+        volumeMounts:
+          - mountPath: /var/app/data/bigquant/datasource
+            name: datasource
+      volumes:
+        - hostPath:
+            path: /var/app/data/bigquant/datasource
+            type: ''
+          name: datasource
+      nodeSelector:
+        bigalphaservice: "true"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bigalphaservice
+  namespace: bigquant
+spec:
+  selector:
+    app: bigalphaservice
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    name: http
+  - protocol: TCP
+    port: 443
+    targetPort: 443
+    name: https

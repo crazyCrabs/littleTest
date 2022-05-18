@@ -1,0 +1,69 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: tradeapiservice
+  namespace: bigquant
+  labels:
+    app: tradeapiservice
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  # 注意：因为启用了hostNetwork模式，所以需要根据节点调度标签将所有pod调度到不同节点
+  # 此处的replicas数量需根据节点数量来填写，同时需要预先给所有节点打上tradeapiservice=true标签
+  replicas: 3
+  template:
+    metadata:
+      namespace: bigquant
+      labels:
+        app: tradeapiservice
+    spec:
+      hostNetwork: true
+      dnsConfig:
+        searches:
+          - bigquant.svc.cluster.local
+          - svc.cluster.local
+          - cluster.local
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: tradeapiservice
+          env:
+          {{ render_envs(tradeapiservice.get('envs'))|indent(10) }}
+          image: dockerhub.bigquant.ai:5000/bigquant/tradeapiservice:master_latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash"]
+          args: ["-c", "python3 /var/app/enabled/bigservice/tradeapiservice/service/service.py"]
+          ports:
+            - containerPort: 37113
+          volumeMounts:
+            - mountPath: /var/app/log/bigservice
+              name: var-app-log-bigservice
+            # pod中存放密码中心license文件夹的挂载点，若不修改此处则无需在pod的环境变量中配置XCSX_PASSKEY_BASE_PATH
+            - mountPath: /var/app/enabled/bigservice/tradeapiservice/files/xcsc/xcpasskey_files
+              name: tradeapiservice-xcpasskey-license
+      volumes:
+        - name: var-app-log-bigservice
+          hostPath:
+            path: /var/app/log/bigservice
+        # 主机上存放密码中心license文件的路径
+        - name: tradeapiservice-xcpasskey-license
+          hostPath:
+            path: /var/app/nfsdata/tradeapiservice/xcpasskey
+      nodeSelector:
+        # 节点调度所用标签
+        tradeapiservice: "true"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: tradeapiservice
+  namespace: bigquant
+spec:
+  selector:
+    app: tradeapiservice
+  ports:
+    - protocol: TCP
+      port: 37113
+      targetPort: 37113
