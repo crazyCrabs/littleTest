@@ -1,4 +1,4 @@
-package selectTest
+package main
 
 import (
 	"fmt"
