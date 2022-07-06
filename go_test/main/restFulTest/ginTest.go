@@ -28,7 +28,7 @@ func main() {
 	r.POST("/user", createUser)
 	r.DELETE("/user/:id", deleteUser)
 	r.PATCH("/user/:id", patchUser)
-	r.Run(":8080")
+	r.Run("0.0.0.0:8080")
 }
 
 func listUsers(c *gin.Context) {
