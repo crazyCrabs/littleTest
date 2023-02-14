@@ -97,7 +97,7 @@ def new_get_course_contents(course_name: str, grade: str) -> dict:
         course_data.append(
             {
                 "grade": data.get('grade'),
-                "name": data.get('name'),
+                "name": data.get('name','').replace("?", "？"),
                 "download_urls": _course_ware,
                 "video_url": data.get("resources")[0].get("url")
             }
@@ -130,8 +130,16 @@ def download_course(course_name: str, grade: str, save_path: str = "./"):
 
 def job(category_name: str, grade: str, save_path: str = "./"):
     course_list = get_course_name_list(category_details[category_name], page_num=1, page_size=120)
+    error_course = []
     for course in course_list:
-        download_course(course, grade, save_path=save_path)
+        try:
+            download_course(course, grade, save_path=save_path)
+        except Exception as e:
+            print(f"!!!!! 下载{course}出错: {e}")
+            error_course.append(course)
+    if error_course:
+        print("!@#$" * 100)
+        print(f">>> 下载失败的课程: {error_course}")
 
 
 if __name__ == '__main__':
@@ -139,8 +147,8 @@ if __name__ == '__main__':
     category_rsp = requests.get(category_url, headers=headers).json()
     category_details = extract_category_info(category_rsp)
 
-    category_name = "小学五年级英语人教版上"
-    grade = "小学五年级"
+    category_name = "小学二年级英语人教版上"
+    grade = "小学二年级"
     save_path = rf"D:\WORK\course\{category_name}"
     os.makedirs(save_path, exist_ok=True)
     job(category_name, grade, save_path=save_path)
