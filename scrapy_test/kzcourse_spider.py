@@ -88,7 +88,8 @@ def get_course_content(weike_id: str) -> dict:
 def new_get_course_contents(course_name: str, grade: str) -> dict:
     search_url = f"http://bdschool.cn/index.php?jsonVar=ajax&app=interface&mod=Search&act=getKnowledgeResource&keyword={course_name}&type=1&self_flag=0&page=1&num=10&token=&_={int(time.time() * 1000)}"
     search_text = requests.get(search_url, headers=headers).text.encode("utf-8").decode("unicode_escape")
-    search_text = search_text.replace('var ajax=', "").replace("&quot", '').replace('&gt', '').replace('&lt', '').replace('\r\n', '').replace('\\', '')
+    search_text = search_text.replace('var ajax=', "").replace("&quot", '').replace(
+        '&gt', '').replace('&lt', '').replace('\r\n', '').replace('\\', '').replace('\t', '')
     rsp_data = json.loads(search_text)
     course_data = []
     head_url = "http://bdschool.cn"
@@ -97,7 +98,7 @@ def new_get_course_contents(course_name: str, grade: str) -> dict:
         course_data.append(
             {
                 "grade": data.get('grade'),
-                "name": data.get('name','').replace("?", "？"),
+                "name": data.get('name', '').replace("?", "？"),
                 "download_urls": _course_ware,
                 "video_url": data.get("resources")[0].get("url")
             }
@@ -135,7 +136,7 @@ def job(category_name: str, grade: str, save_path: str = "./"):
         try:
             download_course(course, grade, save_path=save_path)
         except Exception as e:
-            print(f"!!!!! 下载{course}出错: {e}")
+            print(f"!!!!! 下载 {course} 出错: {e}")
             error_course.append(course)
     if error_course:
         print("!@#$" * 100)
@@ -147,8 +148,11 @@ if __name__ == '__main__':
     category_rsp = requests.get(category_url, headers=headers).json()
     category_details = extract_category_info(category_rsp)
 
-    category_name = "小学二年级英语人教版上"
-    grade = "小学二年级"
-    save_path = rf"D:\WORK\course\{category_name}"
-    os.makedirs(save_path, exist_ok=True)
-    job(category_name, grade, save_path=save_path)
+    # category_name = "小学三年级英语人教版上"
+    grade = "小学六年级"
+
+    categories = ["小学六年级英语北京版上", "小学六年级英语北京版下", "小学六年级英语人教版上"]
+    for category_name in categories:
+        save_path = rf"D:\WORK\course\{category_name}"
+        os.makedirs(save_path, exist_ok=True)
+        job(category_name, grade, save_path=save_path)
