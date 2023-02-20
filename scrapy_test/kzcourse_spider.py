@@ -139,7 +139,7 @@ def job(category_name: str, grade: str, save_path: str = "./"):
             print(f"!!!!! 下载 {course} 出错: {e}")
             error_course.append(course)
     if error_course:
-        print("!@#$" * 100)
+        print("!@#$" * 10)
         print(f">>> 下载失败的课程: {error_course}")
 
 
@@ -149,10 +149,11 @@ if __name__ == '__main__':
     category_details = extract_category_info(category_rsp)
 
     # category_name = "小学三年级英语人教版上"
-    grade = "小学六年级"
+    grade = "小学二年级"
 
-    categories = ["小学六年级英语北京版上", "小学六年级英语北京版下", "小学六年级英语人教版上"]
+    categories = ["小学二年级数学北京版上", "小学二年级数学北京版下", "小学二年级数学人教版上"]
     for category_name in categories:
+        print(">>> 开始下载：", category_name)
         save_path = rf"D:\WORK\course\{category_name}"
         os.makedirs(save_path, exist_ok=True)
         job(category_name, grade, save_path=save_path)
