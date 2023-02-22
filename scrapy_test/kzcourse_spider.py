@@ -149,9 +149,9 @@ if __name__ == '__main__':
     category_details = extract_category_info(category_rsp)
 
     # category_name = "小学三年级英语人教版上"
-    grade = "小学二年级"
+    grade = "初中二年级"
 
-    categories = ["小学二年级数学北京版上", "小学二年级数学北京版下", "小学二年级数学人教版上"]
+    categories = ["初中初二语文统编版上", "初中初二语文统编版下"]
     for category_name in categories:
         print(">>> 开始下载：", category_name)
         save_path = rf"D:\WORK\course\{category_name}"
