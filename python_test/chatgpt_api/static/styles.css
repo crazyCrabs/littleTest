@@ -1,0 +1,71 @@
+/* Style the body element */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Style the header element */
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
+
+/* Style the h1 element */
+h1 {
+    margin: 0;
+}
+
+/* Style the form element */
+form {
+    margin-top: 20px;
+}
+
+/* Style the input element */
+input[type="text"] {
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 60%;
+    margin-right: 10px;
+}
+
+/* Style the submit button */
+input[type="submit"] {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Style the message container */
+.message-container {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #333;
+}
+
+/* Style the message text */
+.message-text {
+    font-size: 16px;
+}
+
+/* Style the pagination links */
+.pagination a {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #333;
+}
+
+/* Style the active pagination link */
+.pagination .active {
+    background-color: #333;
+    color: #fff;
+}

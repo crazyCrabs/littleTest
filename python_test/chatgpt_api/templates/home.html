@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OpenAI Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">OpenAI Chatbot</h1>
+            <div class="columns">
+                <div class="column is-half">
+                    <form id="question-form" method="post">
+                        <div class="field">
+                            <label class="label">Ask a question:</label>
+                            <div class="control">
+                                <input class="input" type="text" name="question"
+                                    placeholder="What is the meaning of life?">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-primary">Ask</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <div class="columns">
+                <div class="column is-half" id="messages-container">
+                    {% for message in messages %}
+                    <div class="box">
+                        {% if message.question %}
+                        <p style="color:rgb(23, 198, 186)">{{ message.question }}</p>
+                        {% endif %}
+                        {% if message.text %}
+                        <p style="color:rgb(12, 188, 242)">{{ message.text }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if messages|length == 0 %}
+            <p>No messages found.</p>
+            {% endif %}
+            {% if messages|length > num_messages_to_display %}
+            <nav class="pagination" role="navigation" aria-label="pagination">
+                <a class="pagination-previous{% if page == 1 %} is-disabled{% endif %}" {% if page> 1 %}href="?page={{
+                    page - 1 }}"{% endif %}>Previous</a>
+                <a class="pagination-next{% if page * num_messages_to_display >= messages|length %} is-disabled{% endif %}"
+                    {% if page * num_messages_to_display < messages|length %}href="?page={{ page + 1 }}" {% endif
+                    %}>Next</a>
+            </nav>
+            {% endif %}
+        </div>
+    </section>
+    <script>
+        const form = document.getElementById("question-form");
+        const messagesContainer = document.getElementById("messages-container");
+        let lastDisplayedIndex = 0;
+        let isFetching = false;
+        const fetchMessages = async () => {
+            if (isFetching) {
+                return;
+            }
+            isFetching = true;
+            const response = await fetch(`/?start=${lastDisplayedIndex}&limit=${num_messages_to_display}`);
+            const data = await response.json();
+            const messages = data.messages;
+            const numMessages = messages.length;
+            if (numMessages > 0) {
+                messages.forEach((message) => {
+                    const messageBox = document.createElement("div");
+                    messageBox.classList.add("box");
+                    const messageText = document.createElement("p");
+                    messageText.textContent = message;
+                    messageBox.appendChild(messageText);
+                    messagesContainer.appendChild(messageBox);
+                });
+                lastDisplayedIndex += numMessages;
+            }
+            if (numMessages < num_messages_to_display) {
+                const paginationContainer = document.querySelector(".pagination");
+                paginationContainer.classList.add("is-hidden");
+            }
+            isFetching = false;
+        };
+        fetchMessages();
+        const handleScroll = () => {
+            const containerHeight = messagesContainer.offsetHeight;
+            const scrollTop = messagesContainer.scrollTop;
+            const scrollHeight = messagesContainer.scrollHeight;
+            if (scrollTop + containerHeight >= scrollHeight) {
+                fetchMessages();
+            }
+        };
+        messagesContainer.addEventListener("scroll", handleScroll);
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const question = formData.get("question");
+            const response = await fetch("/", {
+                method: "POST",
+                body: new URLSearchParams({ question }),
+            });
+            const data = await response.json();
+            const message = data.answer;
+            const messageBox = document.createElement("div");
+            messageBox.classList.add("box");
+            const messageText = document.createElement("p");
+            messageText.textContent = message;
+            messageBox.appendChild(messageText);
+            messagesContainer.insertBefore(messageBox, messagesContainer.firstChild);
+        });
+    </script>
+
+</body>
+
+</html>
