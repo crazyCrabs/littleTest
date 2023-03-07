@@ -85,6 +85,56 @@ def binary_search_2_0(nums: list, value: int):
         return high
 
 
+# 3.查找第一个大于等于给定值的元素
+def binary_search_3(nums: list, value: int):
+    low = 0
+    high = len(nums) - 1
+    while low <= high:
+        mid = low + ((high - low) >> 1)
+        if nums[mid] >= value:
+            if mid == 0 or nums[mid - 1] < value:
+                return mid
+            else:
+                high = mid - 1
+        else:
+            low = mid + 1
+
+
+# 4.查找最后一个小于等于给定值的元素
+def binary_search_4(nums: list, value: int):
+    low = 0
+    high = len(nums) - 1
+    while low <= high:
+        mid = low + ((high - low) >> 1)
+        if nums[mid] <= value:
+            if mid == len(nums) - 1 or nums[mid + 1] > value:
+                return mid
+            else:
+                low = mid + 1
+        else:
+            high = mid - 1
+
+
+# 5. 循环有序数组查找
+# https://www.codeleading.com/article/36005130047/
+def binary_search_5(nums: list, value: int):
+    low = 0
+    high = len(nums) - 1
+    while low <= high:
+        mid = low + ((high - low) >> 1)
+        if nums[mid] == value:
+            return mid
+        if nums[low] <= nums[mid]:
+            if nums[low] <= value < nums[mid]:
+                high = mid - 1
+            else:
+                low = mid + 1
+        elif nums[mid] < value <= nums[high]:
+            low = mid + 1
+        else:
+            high = mid - 1
+
+
 if __name__ == '__main__':
     my_list = [1, 3, 5, 5, 5, 7, 9]
     # print(binary_search(my_list, 3))
@@ -92,3 +142,7 @@ if __name__ == '__main__':
 
     print(binary_search_1(my_list, 5))
     print(binary_search_2_0(my_list, 5))
+    print(binary_search_3(my_list, 6))
+    print(binary_search_4(my_list, 5))
+    print(binary_search_5([4, 5, 6, 7, 0, 1, 2], 0))
+

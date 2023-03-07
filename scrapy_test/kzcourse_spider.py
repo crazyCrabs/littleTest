@@ -131,7 +131,8 @@ def download_course(course_name: str, grade: str, save_path: str = "./"):
 
 def job(category_name: str, grade: str, save_path: str = "./"):
     course_list = get_course_name_list(category_details[category_name], page_num=1, page_size=120)
-    course_list = ['直线与圆的位置关系(1)', '直线和圆的方程小结(2)', '等差数列的前n项和公式(2)', '等比数列的概念(1)', '数学归纳法(2)', '一元函数的导数及其应用小结(2)']
+    course_list = ['高三数学-复数', '高三数学-平面向量', '高三数学-数列',
+                   '高三数学-导数', '高三数学-不等式']
     error_course = []
     for course in course_list:
         try:
@@ -150,9 +151,10 @@ if __name__ == '__main__':
     category_details = extract_category_info(category_rsp)
 
     # category_name = "小学三年级英语人教版上"
-    grade = "高中二年级"
+    grade = "高中三年级"
 
     categories = ["高中高二数学人教A版上", "高中高二数学人教B版上"]
+    categories = ["高中高三数学复习下"]
     for category_name in categories:
         print(">>> 开始下载：", category_name)
         save_path = rf"D:\WORK\course\{category_name}"

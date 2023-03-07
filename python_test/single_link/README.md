@@ -10,3 +10,6 @@
 
 ## delete_link.py
 删除链表中倒数第n个节点
+
+## skip_link.py
+跳表

@@ -8,6 +8,7 @@ class Node:
 
 
 def single_link(data: list):
+    head, cur = None, Node(None)
     for i, v in enumerate(data):
         if i == 0:
             head = Node(v)
