@@ -17,13 +17,14 @@ templates = Jinja2Templates(directory="templates")
 API_KEY = "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"
 PROXY_HOST = "127.0.0.1"
 PROXY_PORT = "7890"
+SHOW_NUMS = 10
 
 
 class Message(BaseModel):
     text: str
 
 
-conn = sqlite3.connect("messages.db")
+conn = sqlite3.connect("messages.db", check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, text TEXT)")
 conn.commit()
@@ -31,15 +32,14 @@ conn.commit()
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, page: int = 1):
-    messages_per_page = 10
-    offset = (page - 1) * messages_per_page
-    rows = cursor.execute("SELECT * FROM messages ORDER BY id DESC LIMIT ? OFFSET ?", (messages_per_page, offset)).fetchall()
+    offset = (page - 1) * SHOW_NUMS
+    rows = cursor.execute("SELECT * FROM messages ORDER BY id DESC LIMIT ? OFFSET ?", (SHOW_NUMS, offset)).fetchall()
     messages = [{"question": row[1], "text": row[2]} for row in rows]
-    print(">>> messages: ", messages)
-    return templates.TemplateResponse("home.html", {"request": request, "messages": messages, "page": page, "num_messages_to_display": 20})
+    print(page, offset, len(messages))
+    return templates.TemplateResponse("home.html", {"request": request, "messages": messages, "page": page, "num_messages_to_display": SHOW_NUMS})
 
 
-@app.post("/")
+@ app.post("/")
 async def ask_question(request: Request, question: str = Form(...)):
     message = await get_response(question)
     cursor.execute("INSERT INTO messages (question, text) VALUES (?, ?)", (question, message,))

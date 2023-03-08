@@ -46,12 +46,12 @@
             {% if messages|length == 0 %}
             <p>No messages found.</p>
             {% endif %}
-            {% if messages|length > num_messages_to_display %}
+            {% if messages|length <= num_messages_to_display %}
             <nav class="pagination" role="navigation" aria-label="pagination">
                 <a class="pagination-previous{% if page == 1 %} is-disabled{% endif %}" {% if page> 1 %}href="?page={{
                     page - 1 }}"{% endif %}>Previous</a>
-                <a class="pagination-next{% if page * num_messages_to_display >= messages|length %} is-disabled{% endif %}"
-                    {% if page * num_messages_to_display < messages|length %}href="?page={{ page + 1 }}" {% endif
+                <a class="pagination-next{% if page * num_messages_to_display < messages|length %} is-disabled{% endif %}"
+                    {% if page * num_messages_to_display >= messages|length and messages|length >= num_messages_to_display %}href="?page={{ page + 1 }}" {% endif
                     %}>Next</a>
             </nav>
             {% endif %}
@@ -59,30 +59,36 @@
     </section>
     <script>
         const form = document.getElementById("question-form");
-        const messagesContainer = document.getElementById("messages-container");
+        <!-- const messagesContainer = document.getElementById("messages-container");
         let lastDisplayedIndex = 0;
         let isFetching = false;
         const fetchMessages = async () => {
+            console.log(isFetching);
             if (isFetching) {
                 return;
             }
             isFetching = true;
-            const response = await fetch(`/?start=${lastDisplayedIndex}&limit=${num_messages_to_display}`);
+            const response = await fetch(`/waterfall?start=${lastDisplayedIndex}&limit=5`);
             const data = await response.json();
             const messages = data.messages;
-            const numMessages = messages.length;
+            const numMessages = data.length;
             if (numMessages > 0) {
                 messages.forEach((message) => {
                     const messageBox = document.createElement("div");
                     messageBox.classList.add("box");
                     const messageText = document.createElement("p");
-                    messageText.textContent = message;
+                    <!-- messageText.style.color = "rgb(23, 198, 186)"; -->
+                    messageText.textContent = message.question;
                     messageBox.appendChild(messageText);
+                    const messageText2 = document.createElement("p");
+                    <!-- messageText2.style.color = "rgb(12, 188, 242)"; -->
+                    messageText2.textContent = message.text;
+                    messageBox.appendChild(messageText2);
                     messagesContainer.appendChild(messageBox);
                 });
                 lastDisplayedIndex += numMessages;
             }
-            if (numMessages < num_messages_to_display) {
+            if (numMessages < 5) {
                 const paginationContainer = document.querySelector(".pagination");
                 paginationContainer.classList.add("is-hidden");
             }
@@ -93,11 +99,12 @@
             const containerHeight = messagesContainer.offsetHeight;
             const scrollTop = messagesContainer.scrollTop;
             const scrollHeight = messagesContainer.scrollHeight;
+            console.log(scrollTop, containerHeight, scrollHeight);
             if (scrollTop + containerHeight >= scrollHeight) {
                 fetchMessages();
             }
         };
-        messagesContainer.addEventListener("scroll", handleScroll);
+        messagesContainer.addEventListener("scroll", handleScroll, true); -->
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
             const formData = new FormData(form);
